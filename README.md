@@ -3,102 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code-Only Garden</title>
+    <title>Our Digital Garden</title>
     <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            background: linear-gradient(#a2d2ff, #fef9e7);
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
-            cursor: crosshair;
+        :root {
+            --grass: #a8e6cf;
+            --flower-1: #ff8b94;
+            --flower-2: #ffd3b6;
+            --flower-3: #dcedc1;
         }
 
-        /* UI Overlay */
-        .info {
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #e0f7fa 0%, #a8e6cf 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            cursor: url('https://cdn-icons-png.flaticon.com/32/427/427735.png'), auto;
+        }
+
+        #garden-ui {
             position: absolute;
             top: 20px;
             width: 100%;
             text-align: center;
-            color: #5b7065;
+            z-index: 10;
             pointer-events: none;
         }
 
-        /* The Flower SVG Styling */
+        h1 { color: #5d8a66; text-shadow: 2px 2px white; margin-bottom: 5px; }
+        p { color: #6a9c78; font-style: italic; }
+
         .flower {
             position: absolute;
-            width: 60px;
-            height: 60px;
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            transform-origin: center bottom;
-        }
-
-        @keyframes popIn {
-            0% { transform: scale(0) rotate(0deg); }
-            100% { transform: scale(1) rotate(10deg); }
-        }
-
-        /* Butterfly Styling */
-        #butterfly {
-            position: absolute;
             width: 40px;
-            pointer-events: none;
-            z-index: 100;
-            transition: transform 0.2s ease-out;
+            height: 40px;
+            transform-origin: bottom center;
+            animation: grow 1s ease-out forwards, sway 3s ease-in-out infinite;
+            cursor: pointer;
         }
 
-        /* Ground */
-        .ground {
+        /* The Petals */
+        .flower::before {
+            content: '🌸'; /* You can alternate these with JS */
+            font-size: 30px;
+            display: block;
+        }
+
+        /* The Tooltip (The Memory) */
+        .flower:hover::after {
+            content: attr(data-memory);
             position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 15vh;
-            background: #95d5b2;
-            z-index: 5;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #d81b60;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        @keyframes grow {
+            0% { transform: scale(0) rotate(0deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        .butterfly {
+            position: absolute;
+            font-size: 20px;
+            pointer-events: none;
+            transition: all 0.5s ease-out;
+            z-index: 50;
         }
     </style>
 </head>
-<body onclick="createFlower(event)">
+<body onclick="plantFlower(event)">
 
-    <div class="info">
-        <h1>Our Digital Greenhouse</h1>
-        <p>Click the ground to grow a memory</p>
+    <div id="garden-ui">
+        <h1>Our Memory Garden</h1>
+        <p>Click anywhere to plant a memory...</p>
     </div>
 
-    <svg id="butterfly" viewBox="0 0 50 50">
-        <path fill="#ffafcc" d="M25 25 Q10 10 5 20 Q5 30 25 25 Q40 10 45 20 Q45 30 25 25">
-            <animateTransform attributeName="transform" type="scale" values="1 1; 0.8 1; 1 1" dur="0.2s" repeatCount="indefinite" />
-        </path>
-    </svg>
-
-    <div class="ground"></div>
+    <div id="butterfly" class="butterfly">🦋</div>
 
     <script>
-        const colors = ['#ff87ab', '#ffb3c1', '#fb6f92', '#c1121f', '#ffccd5'];
-        
-        function createFlower(e) {
-            const color = colors[Math.floor(Math.random() * colors.length)];
+        const memories = [
+            "The day we first met ❤️",
+            "That rainy evening coffee ☕",
+            "When you wore that blue shirt 👕",
+            "Our first long walk 🌙",
+            "The way you laugh at bad jokes 😂",
+            "Your favorite song playing in the car 🎵",
+            "The sunset at the beach 🌅",
+            "Just thinking of you right now... ✨"
+        ];
+
+        const flowerTypes = ['🌸', '🌺', '🌷', '🌻', '🌼'];
+
+        function plantFlower(e) {
+            // Don't plant if clicking on UI
+            if (e.target.id === 'garden-ui') return;
+
+            const flower = document.createElement('div');
+            flower.className = 'flower';
             
-            // Create a Flower using Pure SVG Code
-            const flowerSVG = `
-                <svg class="flower" viewBox="0 0 100 100" style="left:${e.clientX - 30}px; top:${e.clientY - 50}px">
-                    <path d="M50 100 Q60 80 50 50" stroke="#2d6a4f" stroke-width="4" fill="none" />
-                    <circle cx="50" cy="35" r="15" fill="${color}" />
-                    <circle cx="35" cy="50" r="15" fill="${color}" />
-                    <circle cx="65" cy="50" r="15" fill="${color}" />
-                    <circle cx="50" cy="65" r="15" fill="${color}" />
-                    <circle cx="50" cy="50" r="8" fill="#ffeb3b" />
-                </svg>
-            `;
+            // Randomly pick a flower look and a memory
+            const randomType = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
+            const randomMemory = memories[Math.floor(Math.random() * memories.length)];
             
-            document.body.insertAdjacentHTML('beforeend', flowerSVG);
+            flower.style.left = (e.clientX - 20) + 'px';
+            flower.style.top = (e.clientY - 20) + 'px';
+            flower.style.setProperty('--flower-emoji', `"${randomType}"`);
+            flower.setAttribute('data-memory', randomMemory);
+            
+            // Apply the emoji via innerHTML for simplicity
+            flower.innerHTML = `<span style="font-size: 40px;">${randomType}</span>`;
+
+            document.body.appendChild(flower);
         }
 
-        // Butterfly Movement
-        const bfly = document.getElementById('butterfly');
+        // Butterfly follow logic
+        const butterfly = document.getElementById('butterfly');
         document.addEventListener('mousemove', (e) => {
-            bfly.style.left = e.clientX + 'px';
-            bfly.style.top = e.clientY + 'px';
+            butterfly.style.left = (e.clientX + 20) + 'px';
+            butterfly.style.top = (e.clientY - 20) + 'px';
         });
     </script>
 </body>
