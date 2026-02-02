@@ -3,140 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Digital Garden</title>
+    <title>Sparkling Digital Garden</title>
     <style>
-        :root {
-            --grass: #a8e6cf;
-            --flower-1: #ff8b94;
-            --flower-2: #ffd3b6;
-            --flower-3: #dcedc1;
-        }
-
-        body, html {
+        body {
             margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
+            height: 100vh;
+            background: linear-gradient(#1a2a6c, #b21f1f, #fdbb2d); /* A romantic sunset gradient */
             overflow: hidden;
-            background: linear-gradient(to bottom, #e0f7fa 0%, #a8e6cf 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            cursor: url('https://cdn-icons-png.flaticon.com/32/427/427735.png'), auto;
+            font-family: 'Georgia', serif;
+            cursor: crosshair;
         }
 
-        #garden-ui {
+        .info {
             position: absolute;
-            top: 20px;
+            top: 30px;
             width: 100%;
             text-align: center;
-            z-index: 10;
+            color: white;
             pointer-events: none;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 10;
         }
 
-        h1 { color: #5d8a66; text-shadow: 2px 2px white; margin-bottom: 5px; }
-        p { color: #6a9c78; font-style: italic; }
-
-        .flower {
+        /* Flower Container */
+        .flower-wrapper {
             position: absolute;
-            width: 40px;
-            height: 40px;
-            transform-origin: bottom center;
-            animation: grow 1s ease-out forwards, sway 3s ease-in-out infinite;
-            cursor: pointer;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
         }
 
-        /* The Petals */
-        .flower::before {
-            content: '🌸'; /* You can alternate these with JS */
-            font-size: 30px;
-            display: block;
+        .flower-wrapper:hover {
+            transform: scale(1.2);
         }
 
-        /* The Tooltip (The Memory) */
-        .flower:hover::after {
-            content: attr(data-memory);
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            color: #d81b60;
-            white-space: nowrap;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            z-index: 100;
+        /* The Flower SVG */
+        .flower-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+            animation: grow 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         @keyframes grow {
-            0% { transform: scale(0) rotate(0deg); }
-            100% { transform: scale(1) rotate(0deg); }
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
         }
 
-        @keyframes sway {
-            0%, 100% { transform: rotate(-5deg); }
-            50% { transform: rotate(5deg); }
+        /* Sparkle/Pulse effect on hover */
+        .flower-wrapper:hover .flower-svg {
+            filter: drop-shadow(0 0 15px #fff);
+            animation: pulse 1s infinite alternate;
         }
 
-        .butterfly {
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        /* Heart Particles */
+        .heart-particle {
             position: absolute;
+            color: #ff4d6d;
             font-size: 20px;
             pointer-events: none;
-            transition: all 0.5s ease-out;
-            z-index: 50;
+            animation: floatUp 1.5s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) translateX(20px) scale(0); opacity: 0; }
+        }
+
+        #butterfly {
+            position: absolute;
+            width: 40px;
+            pointer-events: none;
+            z-index: 1000;
+            filter: drop-shadow(0 0 10px gold);
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 10vh;
+            background: rgba(45, 106, 79, 0.3);
+            backdrop-filter: blur(5px);
         }
     </style>
 </head>
 <body onclick="plantFlower(event)">
 
-    <div id="garden-ui">
-        <h1>Our Memory Garden</h1>
-        <p>Click anywhere to plant a memory...</p>
+    <div class="info">
+        <h1>Our Sparkling Garden</h1>
+        <p>Plant a flower and hover over it to see it sparkle...</p>
     </div>
 
-    <div id="butterfly" class="butterfly">🦋</div>
+    <svg id="butterfly" viewBox="0 0 50 50">
+        <path fill="#ffd700" d="M25 25 Q10 10 5 20 Q5 30 25 25 Q40 10 45 20 Q45 30 25 25">
+            <animateTransform attributeName="transform" type="scale" values="1 1; 0.7 1; 1 1" dur="0.15s" repeatCount="indefinite" />
+        </path>
+    </svg>
+
+    <div class="ground"></div>
 
     <script>
-        const memories = [
-            "The day we first met ❤️",
-            "That rainy evening coffee ☕",
-            "When you wore that blue shirt 👕",
-            "Our first long walk 🌙",
-            "The way you laugh at bad jokes 😂",
-            "Your favorite song playing in the car 🎵",
-            "The sunset at the beach 🌅",
-            "Just thinking of you right now... ✨"
-        ];
-
-        const flowerTypes = ['🌸', '🌺', '🌷', '🌻', '🌼'];
+        const flowerColors = ['#ff0054', '#ff5400', '#ffbd00', '#9ef01a', '#00f5d4', '#00bbf9', '#9b5de5'];
 
         function plantFlower(e) {
-            // Don't plant if clicking on UI
-            if (e.target.id === 'garden-ui') return;
+            // Prevent planting too high up
+            if(e.clientY < 100) return;
 
-            const flower = document.createElement('div');
-            flower.className = 'flower';
-            
-            // Randomly pick a flower look and a memory
-            const randomType = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
-            const randomMemory = memories[Math.floor(Math.random() * memories.length)];
-            
-            flower.style.left = (e.clientX - 20) + 'px';
-            flower.style.top = (e.clientY - 20) + 'px';
-            flower.style.setProperty('--flower-emoji', `"${randomType}"`);
-            flower.setAttribute('data-memory', randomMemory);
-            
-            // Apply the emoji via innerHTML for simplicity
-            flower.innerHTML = `<span style="font-size: 40px;">${randomType}</span>`;
+            const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flower-wrapper';
+            wrapper.style.left = (e.clientX - 40) + 'px';
+            wrapper.style.top = (e.clientY - 40) + 'px';
 
-            document.body.appendChild(flower);
+            wrapper.innerHTML = `
+                <svg class="flower-svg" viewBox="0 0 100 100">
+                    <circle cx="50" cy="30" r="15" fill="${color}" />
+                    <circle cx="30" cy="50" r="15" fill="${color}" />
+                    <circle cx="70" cy="50" r="15" fill="${color}" />
+                    <circle cx="50" cy="70" r="15" fill="${color}" />
+                    <circle cx="50" cy="50" r="10" fill="yellow" />
+                </svg>
+            `;
+
+            // Add heart sparkle trigger
+            wrapper.onmouseover = () => {
+                for(let i=0; i<5; i++) {
+                    createHeart(e.clientX, e.clientY);
+                }
+            };
+
+            document.body.appendChild(wrapper);
         }
 
-        // Butterfly follow logic
-        const butterfly = document.getElementById('butterfly');
+        function createHeart(x, y) {
+            const heart = document.createElement('div');
+            heart.className = 'heart-particle';
+            heart.innerHTML = '❤️';
+            // Randomize position slightly around the flower
+            heart.style.left = (x - 10 + (Math.random() * 20)) + 'px';
+            heart.style.top = (y - 10) + 'px';
+            
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 1500);
+        }
+
+        // Butterfly follow
+        const bfly = document.getElementById('butterfly');
         document.addEventListener('mousemove', (e) => {
-            butterfly.style.left = (e.clientX + 20) + 'px';
-            butterfly.style.top = (e.clientY - 20) + 'px';
+            bfly.style.left = (e.clientX - 20) + 'px';
+            bfly.style.top = (e.clientY - 20) + 'px';
         });
     </script>
 </body>
